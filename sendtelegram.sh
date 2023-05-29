@@ -44,20 +44,21 @@ if [ ! -z $PARSEMODE_ARG ] && [[ "$PARSEMODE_ARG" != +(markdown|html) ]]; then u
 URL="https://api.telegram.org/bot$TOKEN/sendMessage"
 TIMEOUT=10
 
-echo "Sending message '$TEXT' to $CHATID"
-
-CMDARGS="chat_id=$CHATID&disable_web_page_preview=1&text=$TEXT"
-
-if [ ! -z $PARSEMODE_ARG ]; then
-    CMDARGS=${CMDARGS}"&parse_mode=$PARSEMODE_ARG"
-fi
-
-CMD=`curl -s --max-time $TIMEOUT -d "$CMDARGS" $URL 2>&1`
-
-if [ $? -gt 0 ]; then echo "Failed sending Telegram"
-else echo "Done!"
-fi
-
-if [ "$VERBOSE" -eq 1 ]; then echo $CMD; fi
 
 
+
+for chat in ${CHATID[@]}; do
+  echo "Sending message '$TEXT' to $chat"
+  CMDARGS="chat_id=$chat&disable_web_page_preview=1&text=$TEXT"
+  if [ ! -z $PARSEMODE_ARG ]; then
+      CMDARGS=${CMDARGS}"&parse_mode=$PARSEMODE_ARG"
+  fi
+
+  CMD=`curl -s --max-time $TIMEOUT -d "$CMDARGS" $URL 2>&1`
+
+  if [ $? -gt 0 ]; then echo "Failed sending to Telegram"
+  else echo "Done!"
+  fi
+
+  if [ "$VERBOSE" -eq 1 ]; then echo $CMD; fi
+done
